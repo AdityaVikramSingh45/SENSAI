@@ -1,10 +1,17 @@
+"use server";
+
 import { industries } from "@/data/industries";
 import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
+import { success } from "zod";
+import { generateAIInsights } from "./dashboard";
 
 export async function updatedUser(data){
+    console.log("inside updatedUser");
     const {userId} = await auth();
     if(!userId) return new Error("Unauthoried");
+
+    console.log("userId", userId);
 
     const user = await db.user.findUnique({
         where:{
@@ -25,18 +32,14 @@ export async function updatedUser(data){
 
                 //if industry doesn't exist, create with default values
                 if(!industryInsight){
-                    industryInsight = await tx.industryInsight.create({
-                        data:{
+                    const insights = await generateAIInsights(data.industry);
+
+                    industryInsight = await db.industryInsight.create({
+                        data: {
                             industry: data.industry,
-                            salaryRanges: [],
-                            growthRate: 0,
-                            demandLevel: "Medium",
-                            topSkills: [],
-                            marketOutlook: "Neutral",
-                            keyTrends: [],
-                            recommendedSkills: [],
-                            nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000 ) // 1 week from now
-                        },
+                            ...insights,
+                            nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                        }
                     })
                 }
 
@@ -58,11 +61,11 @@ export async function updatedUser(data){
             timeout: 10000
         });
 
-        return result.user;
+        return {success: true, ...result}
     }        
     catch(error){
         console.error("Error updating user and industry:", error.message);
-        throw new Error("Failed to update profile");
+        throw new Error("Failed to update profile" + error.message);
     }
 }
 
