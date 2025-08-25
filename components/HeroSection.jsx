@@ -49,11 +49,11 @@ const HeroSection = () => {
               Get Started
             </Button>
           </Link>
-          <Link href={"/www.youtube.com"}>
+          <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer">
             <Button size="lg" className="px-8" variant={"outline"}>
               Watch Demo
             </Button>
-          </Link>
+          </a>
         </div>
 
         {/* BANNER */}
