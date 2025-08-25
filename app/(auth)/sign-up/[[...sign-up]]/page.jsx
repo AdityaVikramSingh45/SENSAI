@@ -3,7 +3,13 @@ import React from 'react'
 
 const page = () => {
   return (
-    <SignUp/>
+    <SignUp
+    path="/sign-up"
+    routing="path"
+    signInUrl="/sign-in"
+    fallbackRedirectUrl="/onboarding"
+    forceRedirectUrl="/onboarding"
+  />
   )
 }
 
