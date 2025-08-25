@@ -22,14 +22,13 @@ import EntryForm from "./EntryForm";
 import { entriesToMarkdown } from "@/app/lib/helper";
 import { useUser } from "@clerk/nextjs";
 import MDEditor from "@uiw/react-md-editor";
-// import html2pdf from "html2pdf.js";
 
 // import { useRef } from "react";
 import { useReactToPrint } from "react-to-print";
+import { toast } from "sonner";
 
 // import jsPDF from "jspdf";
 // import html2canvas from "html2canvas";
-
 
 const ResumeBuilder = ({ initialContent }) => {
   const [activeTab, setActiveTab] = useState("edit");
@@ -40,7 +39,7 @@ const ResumeBuilder = ({ initialContent }) => {
 
   const componentRef = useRef(); // create a ref
   const handlePrint = useReactToPrint({
-    contentRef: componentRef,   // v3 syntax
+    contentRef: componentRef, // v3 syntax
     documentTitle: "My-Resume",
     onAfterPrint: () => console.log("Printed successfully!"),
   });
@@ -53,25 +52,25 @@ const ResumeBuilder = ({ initialContent }) => {
   //       console.error("resume-pdf element not found");
   //       return;
   //     }
-  
+
   //     // Convert to canvas
   //     const canvas = await html2canvas(element, { scale: 2 });
   //     const imgData = canvas.toDataURL("image/png");
-  
+
   //     const pdf = new jsPDF("p", "mm", "a4"); // Portrait, millimeters, A4
   //     const pageWidth = pdf.internal.pageSize.getWidth();
   //     const pageHeight = pdf.internal.pageSize.getHeight();
-  
+
   //     const imgWidth = pageWidth;
   //     const imgHeight = (canvas.height * imgWidth) / canvas.width;
-  
+
   //     let heightLeft = imgHeight;
   //     let position = 0;
-  
+
   //     // First page
   //     pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
   //     heightLeft -= pageHeight;
-  
+
   //     // Add extra pages if needed
   //     while (heightLeft > 0) {
   //       position = heightLeft - imgHeight;
@@ -79,7 +78,7 @@ const ResumeBuilder = ({ initialContent }) => {
   //       pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
   //       heightLeft -= pageHeight;
   //     }
-  
+
   //     pdf.save("resume.pdf");
   //   } catch (error) {
   //     console.error("PDF generation error:", error);
@@ -87,7 +86,6 @@ const ResumeBuilder = ({ initialContent }) => {
   //     setIsGenerating(false);
   //   }
   // };
-  
 
   const {
     control,
@@ -143,7 +141,25 @@ const ResumeBuilder = ({ initialContent }) => {
       .join("\n\n");
   };
 
-  const onSubmit = async (data) => {};
+
+  useEffect(()=>{
+    if(saveResult && !isSaving){
+      toast.success("Resume saved successfully");
+    }
+    if(saveError){
+      toast.error(saveError.message || "Failed to save resume")
+    }
+  }, [saveResult, saveError, isSaving])
+
+
+  const onSubmit = async () => {
+    try{
+      await saveResumeFn(previewContent);
+    }
+    catch(error){
+      console.error("Save error:", error);
+    }
+  };
 
   const formValues = watch();
 
@@ -191,9 +207,22 @@ const ResumeBuilder = ({ initialContent }) => {
         </h1>
 
         <div className="space-x-2">
-          <Button variant={"destructive"}>
-            <Save className="h-4 w-4" />
-            Save
+          <Button
+            variant={"destructive"}
+            onClick={onSubmit}
+            disabled={isSaving}
+          >
+            {isSaving ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4" />
+                Save
+              </>
+            )}
           </Button>
           <Button onClick={handlePrint} disabled={isGenerating}>
             {isGenerating ? (
@@ -203,7 +232,7 @@ const ResumeBuilder = ({ initialContent }) => {
               </>
             ) : (
               <>
-                <Download className="h-4 w-4"  />
+                <Download className="h-4 w-4" />
                 Download PDF
               </>
             )}
@@ -433,7 +462,7 @@ const ResumeBuilder = ({ initialContent }) => {
               preview={resumeMode}
             />
           </div>
-          <div >
+          <div className="hidden">
             {/* <div id="resume-pdf">
               <MDEditor.Markdown
                 source={previewContent}
