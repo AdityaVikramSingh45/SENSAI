@@ -127,9 +127,12 @@ const DashboardView = ({ insights }) => {
             <div className="text-2xl font-bold">
               {insights.growthRate.toFixed(1)}%
             </div>
-            <p className="text-xs text-muted-foreground mt-2">
+            {/* <p className="text-xs text-muted-foreground mt-2">
               <Progress value={insights.growthRate} />
-            </p>
+            </p> */}
+            <div className="mt-2">
+              <Progress value={insights.growthRate} />
+            </div>
           </CardContent>
         </Card>
 

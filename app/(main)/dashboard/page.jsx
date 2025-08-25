@@ -7,9 +7,9 @@ import DashboardView from "./_component/DashboardView";
 const IndustryInsightPage = async () => {
   const { isOnboarded } = await getUserOnboardingStatus();
 
-  if (isOnboarded === undefined) {
-    redirect("/sign-in"); // or your login page
-  }
+  // if (isOnboarded === undefined) {
+  //   redirect("/sign-in"); // or your login page
+  // }
   if (!isOnboarded) {
     redirect("/onboarding");
   }

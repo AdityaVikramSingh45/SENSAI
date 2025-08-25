@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from "react";
@@ -7,6 +6,7 @@ import {
   SignedIn,
   SignedOut,
   UserButton,
+  useUser,
 } from "@clerk/nextjs";
 import Link from "next/link";
 import Image from "next/image";
@@ -27,6 +27,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const Header = () => {
+  const { isLoaded, isSignedIn, user } = useUser();
+  if (!isLoaded) {
+    //  fallback during session check
+    return (
+      <header className="fixed top-0 w-full border-b bg-background/80 backdrop-blur-md z-50">
+        <nav className="flex justify-between container items-center mx-auto py-2">
+          <Image alt="SENSAI LOGO" src="/logo.png" width={160} height={50} />
+          <span className="text-gray-400">Loading...</span>
+        </nav>
+      </header>
+    )
+  }
   return (
     <header className="fixed top-0 w-full border-b bg-background/80 backdrop-blur-md z-50 supports-[backdrop-filter]:bg-background/10">
       <nav className="flex justify-between container items-center mx-auto py-1">

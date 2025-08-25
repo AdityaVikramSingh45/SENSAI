@@ -6,22 +6,27 @@ import React, { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 
 const Page = () => {
-  const { isSignedIn } = useAuth();
+  const { isLoaded, isSignedIn } = useAuth(); // <-- add isLoaded
   const router = useRouter();
   const [isRedirecting, setIsRedirecting] = useState(false);
 
   useEffect(() => {
+    // if (!isLoaded) return; // <-- wait until Clerk is ready
+
+    if (!isLoaded) return <Loader2 className="animate-spin" />; // show loader until ready
+    if (!isSignedIn) router.push("/sign-in"); // redirect only after loaded
+
     if (isSignedIn) {
-      setIsRedirecting(true); // show loader
+      setIsRedirecting(true);
       const timeout = setTimeout(() => {
-        router.push("/dashboard");
-      }, 1200); // small delay for smoother UX
+        router.replace("/dashboard");
+      }, 1000);
 
       return () => clearTimeout(timeout);
     }
-  }, [isSignedIn, router]);
+  }, [isLoaded, isSignedIn, router]);
 
-  if (isRedirecting) {
+  if (!isLoaded || isRedirecting) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-br from-gray-50 to-gray-100">
         <Loader2 className="h-10 w-10 animate-spin text-indigo-600 mb-4" />
@@ -33,17 +38,16 @@ const Page = () => {
   }
 
   return (
-      <SignIn
-        path="/sign-in"
-        routing="path"
-        signUpUrl="/sign-up"
-        fallbackRedirectUrl="/onboarding"
-        forceRedirectUrl="/onboarding"
-      />
+    <SignIn
+      path="/sign-in"
+      routing="path"
+      signUpUrl="/sign-up"
+    />
   );
 };
 
 export default Page;
+
 
 
 
