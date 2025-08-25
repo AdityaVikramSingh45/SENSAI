@@ -9,7 +9,7 @@ import {
   Monitor,
   Save,
 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,8 +24,12 @@ import { useUser } from "@clerk/nextjs";
 import MDEditor from "@uiw/react-md-editor";
 // import html2pdf from "html2pdf.js";
 
-import { useRef } from "react";
+// import { useRef } from "react";
 import { useReactToPrint } from "react-to-print";
+
+// import jsPDF from "jspdf";
+// import html2canvas from "html2canvas";
+
 
 const ResumeBuilder = ({ initialContent }) => {
   const [activeTab, setActiveTab] = useState("edit");
@@ -40,6 +44,49 @@ const ResumeBuilder = ({ initialContent }) => {
     documentTitle: "My-Resume",
     onAfterPrint: () => console.log("Printed successfully!"),
   });
+
+  // const generatePDF = async () => {
+  //   setIsGenerating(true);
+  //   try {
+  //     const element = document.getElementById("resume-pdf");
+  //     if (!element) {
+  //       console.error("resume-pdf element not found");
+  //       return;
+  //     }
+  
+  //     // Convert to canvas
+  //     const canvas = await html2canvas(element, { scale: 2 });
+  //     const imgData = canvas.toDataURL("image/png");
+  
+  //     const pdf = new jsPDF("p", "mm", "a4"); // Portrait, millimeters, A4
+  //     const pageWidth = pdf.internal.pageSize.getWidth();
+  //     const pageHeight = pdf.internal.pageSize.getHeight();
+  
+  //     const imgWidth = pageWidth;
+  //     const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  
+  //     let heightLeft = imgHeight;
+  //     let position = 0;
+  
+  //     // First page
+  //     pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+  //     heightLeft -= pageHeight;
+  
+  //     // Add extra pages if needed
+  //     while (heightLeft > 0) {
+  //       position = heightLeft - imgHeight;
+  //       pdf.addPage();
+  //       pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+  //       heightLeft -= pageHeight;
+  //     }
+  
+  //     pdf.save("resume.pdf");
+  //   } catch (error) {
+  //     console.error("PDF generation error:", error);
+  //   } finally {
+  //     setIsGenerating(false);
+  //   }
+  // };
   
 
   const {
@@ -112,29 +159,29 @@ const ResumeBuilder = ({ initialContent }) => {
     }
   }, [formValues, activeTab]);
 
-  const generatePDF = async () => {
-    setIsGenerating(true);
-    try {
-      const element = document.getElementById("resume-pdf");
-      if (!element) {
-        console.error("resume-pdf element not found");
-        return;
-      }
-      const opt = {
-        margin: [15, 15],
-        filename: "resume.pdf",
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-      };
+  // const generatePDF = async () => {
+  //   setIsGenerating(true);
+  //   try {
+  //     const element = document.getElementById("resume-pdf");
+  //     if (!element) {
+  //       console.error("resume-pdf element not found");
+  //       return;
+  //     }
+  //     const opt = {
+  //       margin: [15, 15],
+  //       filename: "resume.pdf",
+  //       image: { type: "jpeg", quality: 0.98 },
+  //       html2canvas: { scale: 2 },
+  //       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+  //     };
 
-      await html2pdf().set(opt).from(element).save();
-    } catch (error) {
-      console.error("PDF generation error:", error);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
+  //     await html2pdf().set(opt).from(element).save();
+  //   } catch (error) {
+  //     console.error("PDF generation error:", error);
+  //   } finally {
+  //     setIsGenerating(false);
+  //   }
+  // };
 
   return (
     <div className="space-y-4">
@@ -219,7 +266,7 @@ const ResumeBuilder = ({ initialContent }) => {
                   />
                   {errors.contactInfo?.linkedin && (
                     <p className="text-sm text-red-500">
-                      {errors.contactInfo?.email?.linkedin}
+                      {errors.contactInfo?.linkedin}
                     </p>
                   )}
                 </div>
